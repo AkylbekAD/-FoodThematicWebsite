@@ -108,7 +108,7 @@ window.addEventListener('DOMContentLoaded', () => {
     modal.classList.remove('hide');
     // modal.classList.toggle('show');
     document.body.style.overflowY = 'hidden';
-    clearInterval(modalTimerId);
+    // clearInterval(modalTimerId);
     window.removeEventListener('scroll', showModalByScroll);
   }
 
@@ -131,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const modalTimerId = setTimeout(openModal, 50000);
+  // const modalTimerId = setTimeout(openModal, 50000);
 
   function showModalByScroll() {
     if (
@@ -187,6 +187,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let result = await fetch(url);
 
     if (!result.ok) {
+      // проверяет результат fetch на наличие ошибок при запросе данных, т.к. 404 для него не ошибка.
       throw new Error(`Could not fetch ${url}, status: ${result.status}`);
     }
 
@@ -235,10 +236,6 @@ window.addEventListener('DOMContentLoaded', () => {
       form.insertAdjacentElement('afterend', statusMessage);
 
       const formData = new FormData(form);
-      // const object = {};
-      // formData.forEach(function (value, key) {
-      //   object[key] = value;
-      // });
 
       let json = JSON.stringify(Object.fromEntries(formData.entries()));
 
@@ -282,7 +279,73 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // fetch('http://localhost:3000/menu')
-  //   .then((data) => data.json())
-  //   .then((res) => console.log(res));
+  //Slider
+
+  const sliders = document.querySelectorAll('.offer__slide'),
+    counterTotal = document.querySelector('#total'),
+    counterCurrent = document.querySelector('#current'),
+    sliderPrev = document.querySelector('.offer__slider-prev'),
+    sliderNext = document.querySelector('.offer__slider-next');
+
+  let counter = 1;
+  counterTotal.innerHTML = getZero(sliders.length);
+
+  function showSlide() {
+    if (counter > sliders.length) {
+      counter = 1;
+    }
+
+    if (counter < 1) {
+      counter = sliders.length;
+    }
+
+    sliders.forEach((item) => (item.style.display = 'none'));
+    sliders[counter - 1].style.display = 'block';
+    counterCurrent.innerHTML = getZero(counter);
+  }
+  showSlide();
+
+  sliderNext.addEventListener('click', () => {
+    counter++;
+    showSlide();
+  });
+  sliderPrev.addEventListener('click', () => {
+    counter--;
+    showSlide();
+  });
+
+  // function sliderCounter() {
+  //   counterTotal.innerHTML = getZero(sliders.length); // счётчик общего кол-ва слайдов
+  //   counterCurrent.innerHTML = getZero(counter);
+  //   console.log(counter);
+  // }
+  // sliderCounter();
+
+  // sliderNext.addEventListener('click', () => {
+  //   if (counter > sliders.length - 1) {
+  //     sliders[counter - 1].style.display = 'none';
+  //     counter = 1;
+  //     sliders[counter - 1].style.display = 'block';
+  //     sliderCounter();
+  //   } else {
+  //     sliders[counter - 1].style.display = 'none';
+  //     sliders[counter].style.display = 'block';
+  //     counter++;
+  //     sliderCounter();
+  //   }
+  // });
+
+  // sliderPrev.addEventListener('click', () => {
+  //   if (counter == 1) {
+  //     sliders[counter - 1].style.display = 'none';
+  //     counter = sliders.length;
+  //     sliders[counter - 1].style.display = 'block';
+  //     sliderCounter();
+  //   } else {
+  //     sliders[counter - 1].style.display = 'none';
+  //     sliders[counter - 2].style.display = 'block';
+  //     counter--;
+  //     sliderCounter();
+  //   }
+  // });
 });
