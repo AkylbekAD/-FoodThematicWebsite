@@ -38,10 +38,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Timer
 
-  const deadline = '2021-12-28T22:35:00';
+  const deadline = '2021-12-28T22:35:00'; //конец таймера акции
 
   function getTimeReamaining(endtime) {
-    const t = Date.parse(endtime) - Date.parse(new Date()),
+    // реализация таймера по дням,часам,минутам,секундам до конца акции
+    const t = Date.parse(endtime) - Date.parse(new Date()), // разница между концом акции и настоящим временем
       days = Math.floor(t / (1000 * 60 * 60 * 24)),
       hours = Math.floor((t / (1000 * 60 * 60)) % 24),
       minutes = Math.floor((t / (1000 * 60)) % 60),
@@ -57,6 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function getZero(num) {
+    // позволяет получать 0 перед однозначным числом
     if (num >= 0 && num < 10) {
       return `0${num}`;
     } else {
@@ -65,16 +67,18 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function setClock(selector, endtime) {
+    //вывод таймера на страницу
     const timer = document.querySelector(selector),
       days = timer.querySelector('#days'),
       hours = timer.querySelector('#hours'),
       minutes = timer.querySelector('#minutes'),
       seconds = timer.querySelector('#seconds'),
-      timeInterval = setInterval(updateClock, 1000);
+      timeInterval = setInterval(updateClock, 1000); //вызов обновления с интвервалом
 
     updateClock();
 
     function updateClock() {
+      // обновление таймера через заданный интервал (1 секунда)
       const t = getTimeReamaining(endtime);
 
       days.innerHTML = getZero(t.days);
@@ -83,6 +87,7 @@ window.addEventListener('DOMContentLoaded', () => {
       seconds.innerHTML = getZero(t.seconds);
 
       if (t.total <= 0) {
+        // чтобы таймер не уходил в отрицательные значения
         clearInterval(timeInterval);
         days.innerHTML = 0;
         hours.innerHTML = 0;
@@ -94,28 +99,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
   setClock('.timer', deadline);
 
-  // Modal
+  // Modal окно для приема данных пользователя
 
   const modalTrigger = document.querySelectorAll('[data-modal]'),
     modal = document.querySelector('[data-modalWindow]');
 
   modalTrigger.forEach((btn) => {
+    //обработчик события на все кнопки для модальных окон
     btn.addEventListener('click', openModal);
   });
 
   function openModal() {
     modal.classList.add('show');
     modal.classList.remove('hide');
-    // modal.classList.toggle('show');
     document.body.style.overflowY = 'hidden';
-    // clearInterval(modalTimerId);
+    // clearInterval(modalTimerId); // сброс автооткрытия окна после единождого открытия
     window.removeEventListener('scroll', showModalByScroll);
   }
 
   function closeModal() {
     modal.classList.add('hide');
     modal.classList.remove('show');
-    // modal.classList.toggle('show');
     document.body.style.overflowY = '';
   }
 
@@ -126,14 +130,16 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('keydown', (e) => {
+    // обработчик события на клавишу "Escape"
     if (e.code === 'Escape' && modal.classList.contains('show')) {
       closeModal();
     }
   });
 
-  // const modalTimerId = setTimeout(openModal, 50000);
+  // const modalTimerId = setTimeout(openModal, 50000); // автооткрытие модального окна через время
 
   function showModalByScroll() {
+    //открытие модального окна при промотке до конца страницы
     if (
       window.pageYOffset + document.documentElement.clientHeight >=
       document.documentElement.scrollHeight
@@ -145,7 +151,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', showModalByScroll);
 
+  // Menu block
+
   class MenuItem {
+    //конструктор меню табов
     constructor(src, alt, title, descr, price, parent, ...classes) {
       this.src = src;
       this.title = title;
@@ -160,16 +169,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     changeToRuble() {
+      //конвертация $ в рубли
       this.price = this.price * this.transfer;
     }
 
     renderMenuItem() {
+      //рендер табов на страницу
       const NewMenuItem = document.createElement('div');
       if (this.classes.indexOf('menu__item') == -1) {
+        //проверка и подставка класса 'menu__item'
         this.element = 'menu__item';
         NewMenuItem.classList.add(this.element);
       }
-      this.classes.forEach((className) => NewMenuItem.classList.add(className));
+      this.classes.forEach((className) => NewMenuItem.classList.add(className)); // добавление частных классов через rest оператор если они присутствуют
       NewMenuItem.innerHTML = `
           <img src=${this.src} alt=${this.alt} />
           <h3 class="menu__item-subtitle">Меню "${this.title}"</h3>
@@ -179,40 +191,46 @@ window.addEventListener('DOMContentLoaded', () => {
         <div class="menu__item-cost">Цена:</div>
         <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
       </div>`;
-      this.parent.append(NewMenuItem);
+      this.parent.append(NewMenuItem); //определение куда встраивать в верстку
     }
   }
 
   const getResource = async (url) => {
-    let result = await fetch(url);
+    //асинхронное получение данных с сервера по url
+    let result = await fetch(url); //ожидание резульатов запроса, defualt 30 секунд
 
     if (!result.ok) {
       // проверяет результат fetch на наличие ошибок при запросе данных, т.к. 404 для него не ошибка.
-      throw new Error(`Could not fetch ${url}, status: ${result.status}`);
+      throw new Error(`Could not fetch ${url}, status: ${result.status}`); // если нет результата, создание ошибки и вывод
     }
 
-    return await result.json();
+    return await result.json(); // возвращение результата в виде promise в формате json
   };
 
   getResource('http://localhost:3000/menu').then((data) => {
+    //получение данных из БД
     data.forEach(({ img, alt, title, descr, price, parent }) => {
-      new MenuItem(img, alt, title, descr, price, parent);
+      // создание массива по свойствам
+      new MenuItem(img, alt, title, descr, price, parent); // создание экзепляра через конструктор по свойствам и значениям
     });
   });
 
-  const forms = document.querySelectorAll('form');
+  const forms = document.querySelectorAll('form'); //форма в модальном окне которая заполняется пользователем
 
   const message = {
+    //содержание сообщения о статусе отправки данных пользователя через модальное окно
     loading: 'img/forms/spinner.svg',
     success: 'Спасибо! Скоро мы с вами свяжeмся!',
     failure: 'Что то пошло не так x_X',
   };
 
   forms.forEach((item) => {
+    // для срабатывания каждой формы на странице при отправке
     bindPostData(item);
   });
 
   const postData = async (url, data) => {
+    //асинхронная отправка данных на сервер в БД
     let result = await fetch(url, {
       method: 'POST',
       headers: {
@@ -224,53 +242,56 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   function bindPostData(form) {
+    // обработчик отправки данных пользователя
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const statusMessage = document.createElement('img');
+      const statusMessage = document.createElement('img'); // вывод спиннера во время ожидания отправки
       statusMessage.src = message.loading;
       statusMessage.style.cssText = `
           display: block;
           margin: 0 auto;
       `;
-      form.insertAdjacentElement('afterend', statusMessage);
+      form.insertAdjacentElement('afterend', statusMessage); // добавляет спиннер в DOM-дерево после формы с сообщением
 
-      const formData = new FormData(form);
+      const formData = new FormData(form); //создание специального экземпляра, позволяет не устанавливать заголовки
 
-      let json = JSON.stringify(Object.fromEntries(formData.entries()));
+      let json = JSON.stringify(Object.fromEntries(formData.entries())); //преобразование массива в объект, а затем объекта в JSON формат для отправки
 
       postData('http://localhost:3000/requests', json)
         .then((data) => {
           console.log(data);
           showThanksModal(message.success);
-          form.reset();
         })
         .catch(() => {
-          showThanksModal(message.failure);
+          showThanksModal(message.failure); //вывод сообщения об ошибке
         })
         .finally(() => {
-          form.reset();
+          // метод срабатывающий при обоих исходах then и catch
+          form.reset(); // сброс данных в форме
           statusMessage.remove();
         });
     });
 
     function showThanksModal(message) {
+      //вывод сообщения об статусе отправки ввиде модального окна
       const prevModalDialog = document.querySelector('.modal__dialog');
 
-      prevModalDialog.classList.add('hide');
+      prevModalDialog.classList.add('hide'); // скрытие прочих модальных окон
       openModal();
 
-      const thanksModal = document.createElement('div');
+      const thanksModal = document.createElement('div'); // создания модального окна с благодарностью либо об ошибке
       thanksModal.classList.add('modal__dialog');
       thanksModal.innerHTML = `
       <div class="modal__content">
           <div class="modal__close" data-close>×</div>
-          <div class="modal__title">${message}</div>
+          <div class="modal__title">${message}</div> 
       </div>
     `;
 
       document.querySelector('.modal').append(thanksModal);
       setTimeout(() => {
+        // автоматическое скрытие модального окна через время
         thanksModal.remove();
         prevModalDialog.classList.add('show');
         prevModalDialog.classList.remove('hide');
@@ -279,41 +300,105 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  //Slider
+  // Slider
 
   const sliders = document.querySelectorAll('.offer__slide'),
     counterTotal = document.querySelector('#total'),
     counterCurrent = document.querySelector('#current'),
     sliderPrev = document.querySelector('.offer__slider-prev'),
-    sliderNext = document.querySelector('.offer__slider-next');
+    sliderNext = document.querySelector('.offer__slider-next'),
+    slidesWrapper = document.querySelector('.offer__slider-wrapper'), // ячейка обзора слайдов
+    slidesField = document.querySelector('.offer__slider-inner'), // поле объединённых слайдов
+    slideWidth = window.getComputedStyle(slidesWrapper).width; // ширина для подгонки всех слайдов под ячейку
 
+  let offset = 0; // отступ во время transition, текущее положение slidesField
   let counter = 1;
-  counterTotal.innerHTML = getZero(sliders.length);
 
-  function showSlide() {
-    if (counter > sliders.length) {
-      counter = 1;
-    }
+  counterTotal.innerHTML = getZero(sliders.length); // добавление 0 перед одинарным числом
+  counterCurrent.innerHTML = getZero(counter);
 
-    if (counter < 1) {
-      counter = sliders.length;
-    }
+  slidesField.style.width = 100 * sliders.length + '%'; // занимает 400% ширины slidesWrapper
+  slidesField.style.display = 'flex';
+  slidesField.style.transition = '0.5s all'; // время перемещения слайдов
 
-    sliders.forEach((item) => (item.style.display = 'none'));
-    sliders[counter - 1].style.display = 'block';
-    counterCurrent.innerHTML = getZero(counter);
-  }
-  showSlide();
+  slidesWrapper.style.overflow = 'hidden'; // скрытие слайдов не попадающих в ячейку slidesField
+
+  sliders.forEach((slide) => {
+    // подгон ширины всех слайдов под ширину ячейки
+    slide.style.width = slideWidth;
+  });
 
   sliderNext.addEventListener('click', () => {
-    counter++;
-    showSlide();
-  });
-  sliderPrev.addEventListener('click', () => {
-    counter--;
-    showSlide();
+    if (
+      offset ==
+      +slideWidth.slice(0, slideWidth.length - 2) * (sliders.length - 1) // показ первого слайда если смещение равно максимальной ширине
+    ) {
+      offset = 0;
+    } else {
+      offset += +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда влево
+    }
+
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    if (counter == sliders.length) {
+      counter = 1;
+    } else {
+      counter++;
+    }
+    counterCurrent.innerHTML = getZero(counter);
   });
 
+  sliderPrev.addEventListener('click', () => {
+    if (offset == 0) {
+      // показ последнего слайда если смещение равно 0
+      offset =
+        +slideWidth.slice(0, slideWidth.length - 2) * (sliders.length - 1); // последний слайд
+    } else {
+      offset -= +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда вправо
+    }
+
+    slidesField.style.transform = `translateX(-${offset}px)`;
+
+    if (counter == 1) {
+      counter = sliders.length;
+    } else {
+      counter--;
+    }
+    counterCurrent.innerHTML = getZero(counter);
+  });
+
+  // Second Slider by Course:
+
+  // let counter = 1; // счётчик текущего слайда, поумолчанию стоит 1
+  // counterTotal.innerHTML = getZero(sliders.length); // добавление 0 перед одинарным числом
+
+  // function showSlide() {
+  //   if (counter > sliders.length) { // замыкание конца с началом слайдов
+  //     counter = 1;
+  //   }
+
+  //   if (counter < 1) { // замыкание начала с концом слайдов
+  //     counter = sliders.length;
+  //   }
+
+  //   sliders.forEach((item) => (item.style.display = 'none')); // скрытие всех слайдов
+  //   sliders[counter - 1].style.display = 'block'; // показ первого слайда из массива
+  //   counterCurrent.innerHTML = getZero(counter); // добавление 0 перед одинарным числом
+  // }
+  // showSlide();
+
+  // sliderNext.addEventListener('click', () => { // след слайд
+  //   counter++;
+  //   showSlide();
+  // });
+  // sliderPrev.addEventListener('click', () => { // пред слайд
+  //   counter--;
+  //   showSlide();
+  // });
+
+  // My first attemtp to Slider:
+
+  // let counter = 1; // счётчик текущего слайда, поумолчанию стоит 1
   // function sliderCounter() {
   //   counterTotal.innerHTML = getZero(sliders.length); // счётчик общего кол-ва слайдов
   //   counterCurrent.innerHTML = getZero(counter);
