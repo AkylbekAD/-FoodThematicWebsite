@@ -338,14 +338,13 @@ window.addEventListener('DOMContentLoaded', () => {
       offset += +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда влево
     }
 
-    slidesField.style.transform = `translateX(-${offset}px)`;
-
     if (counter == sliders.length) {
       counter = 1;
     } else {
       counter++;
     }
-    counterCurrent.innerHTML = getZero(counter);
+
+    activateSlider(); // обновляем активность слайдера
   });
 
   sliderPrev.addEventListener('click', () => {
@@ -357,80 +356,55 @@ window.addEventListener('DOMContentLoaded', () => {
       offset -= +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда вправо
     }
 
-    slidesField.style.transform = `translateX(-${offset}px)`;
-
     if (counter == 1) {
       counter = sliders.length;
     } else {
       counter--;
     }
-    counterCurrent.innerHTML = getZero(counter);
+
+    activateSlider(); // обновляем активность слайдера
   });
 
-  // Second Slider by Course:
+  //Slider navigator
 
-  // let counter = 1; // счётчик текущего слайда, поумолчанию стоит 1
-  // counterTotal.innerHTML = getZero(sliders.length); // добавление 0 перед одинарным числом
+  const sliderOffer = document.querySelector('.offer__slider'), // находим общую обёртку слайдера
+    dots = []; // создаем массив для точек навигации
 
-  // function showSlide() {
-  //   if (counter > sliders.length) { // замыкание конца с началом слайдов
-  //     counter = 1;
-  //   }
+  sliderOffer.style.position = 'relative';
 
-  //   if (counter < 1) { // замыкание начала с концом слайдов
-  //     counter = sliders.length;
-  //   }
+  const navigatorBlock = document.createElement('ul');
+  navigatorBlock.classList.add('carousel-indicators');
 
-  //   sliders.forEach((item) => (item.style.display = 'none')); // скрытие всех слайдов
-  //   sliders[counter - 1].style.display = 'block'; // показ первого слайда из массива
-  //   counterCurrent.innerHTML = getZero(counter); // добавление 0 перед одинарным числом
-  // }
-  // showSlide();
+  for (let i = 0; i < sliders.length; i++) {
+    const dot = document.createElement('li');
+    dot.setAttribute('data-slide-to', i + 1);
+    dot.classList.add('dot');
+    navigatorBlock.append(dot);
 
-  // sliderNext.addEventListener('click', () => { // след слайд
-  //   counter++;
-  //   showSlide();
-  // });
-  // sliderPrev.addEventListener('click', () => { // пред слайд
-  //   counter--;
-  //   showSlide();
-  // });
+    if (i == 0) {
+      dot.style.opacity = 1;
+    }
+    dots.push(dot);
+  }
+  sliderOffer.append(navigatorBlock);
 
-  // My first attemtp to Slider:
+  function activateSlider() {
+    dots.forEach((dot) => (dot.style.opacity = '.5')); //задаем всем точкам навигатора неактивность
 
-  // let counter = 1; // счётчик текущего слайда, поумолчанию стоит 1
-  // function sliderCounter() {
-  //   counterTotal.innerHTML = getZero(sliders.length); // счётчик общего кол-ва слайдов
-  //   counterCurrent.innerHTML = getZero(counter);
-  //   console.log(counter);
-  // }
-  // sliderCounter();
+    dots[counter - 1].style.opacity = 1; // обновляем текущий активный слайд в навигаторе
 
-  // sliderNext.addEventListener('click', () => {
-  //   if (counter > sliders.length - 1) {
-  //     sliders[counter - 1].style.display = 'none';
-  //     counter = 1;
-  //     sliders[counter - 1].style.display = 'block';
-  //     sliderCounter();
-  //   } else {
-  //     sliders[counter - 1].style.display = 'none';
-  //     sliders[counter].style.display = 'block';
-  //     counter++;
-  //     sliderCounter();
-  //   }
-  // });
+    slidesField.style.transform = `translateX(-${offset}px)`; // смещение по Х на заданное расстояние
 
-  // sliderPrev.addEventListener('click', () => {
-  //   if (counter == 1) {
-  //     sliders[counter - 1].style.display = 'none';
-  //     counter = sliders.length;
-  //     sliders[counter - 1].style.display = 'block';
-  //     sliderCounter();
-  //   } else {
-  //     sliders[counter - 1].style.display = 'none';
-  //     sliders[counter - 2].style.display = 'block';
-  //     counter--;
-  //     sliderCounter();
-  //   }
-  // });
+    counterCurrent.innerHTML = getZero(counter); //обновляем текущий счётчик
+  }
+
+  dots.forEach((dot) => {
+    dot.addEventListener('click', (event) => {
+      const slideTo = event.target.getAttribute('data-slide-to');
+      counter = slideTo;
+      offset = +slideWidth.slice(0, slideWidth.length - 2) * (slideTo - 1);
+
+      activateSlider(); // обновляем активность слайдера
+    });
+  });
 });
