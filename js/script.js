@@ -331,14 +331,15 @@ window.addEventListener('DOMContentLoaded', () => {
   sliderNext.addEventListener('click', () => {
     if (
       offset ==
-      +slideWidth.slice(0, slideWidth.length - 2) * (sliders.length - 1) // показ первого слайда если смещение равно максимальной ширине
+      deleteNoNumbers(slideWidth) * (sliders.length - 1) // показ первого слайда если смещение равно максимальной ширине
     ) {
       offset = 0;
     } else {
-      offset += +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда влево
+      offset += deleteNoNumbers(slideWidth); // смещение на еденицу ширины слайда влево
     }
 
     if (counter == sliders.length) {
+      // замчкание счётчика конца с началом
       counter = 1;
     } else {
       counter++;
@@ -350,13 +351,13 @@ window.addEventListener('DOMContentLoaded', () => {
   sliderPrev.addEventListener('click', () => {
     if (offset == 0) {
       // показ последнего слайда если смещение равно 0
-      offset =
-        +slideWidth.slice(0, slideWidth.length - 2) * (sliders.length - 1); // последний слайд
+      offset = deleteNoNumbers(slideWidth) * (sliders.length - 1); // последний слайд
     } else {
-      offset -= +slideWidth.slice(0, slideWidth.length - 2); // смещение на еденицу ширины слайда вправо
+      offset -= deleteNoNumbers(slideWidth); // смещение на еденицу ширины слайда вправо
     }
 
     if (counter == 1) {
+      // замыкание счётчика начала с концом
       counter = sliders.length;
     } else {
       counter--;
@@ -370,25 +371,30 @@ window.addEventListener('DOMContentLoaded', () => {
   const sliderOffer = document.querySelector('.offer__slider'), // находим общую обёртку слайдера
     dots = []; // создаем массив для точек навигации
 
-  sliderOffer.style.position = 'relative';
+  sliderOffer.style.position = 'relative'; // устанавливаем "местную" ось координат
 
-  const navigatorBlock = document.createElement('ul');
-  navigatorBlock.classList.add('carousel-indicators');
+  const navigatorBlock = document.createElement('ul'); // создаем блок список
+  sliderOffer.append(navigatorBlock); // помещаем элемент в обёртку слайдера
+
+  navigatorBlock.classList.add('carousel-indicators'); // применяем стили для точек списка
 
   for (let i = 0; i < sliders.length; i++) {
+    // создаем точки списка из кол-ва слайдов
     const dot = document.createElement('li');
-    dot.setAttribute('data-slide-to', i + 1);
+    dot.setAttribute('data-slide-to', i + 1); // задаём индивидуальный дата-аттрибут каждой точке списка
     dot.classList.add('dot');
-    navigatorBlock.append(dot);
+    navigatorBlock.append(dot); // помещаем точки в блок список
 
     if (i == 0) {
+      // по-умолчанию 1 точка активна
       dot.style.opacity = 1;
     }
-    dots.push(dot);
+
+    dots.push(dot); // помещаем каждый эелемент (точку) списка в массив dots
   }
-  sliderOffer.append(navigatorBlock);
 
   function activateSlider() {
+    // задание активного слайдера
     dots.forEach((dot) => (dot.style.opacity = '.5')); //задаем всем точкам навигатора неактивность
 
     dots[counter - 1].style.opacity = 1; // обновляем текущий активный слайд в навигаторе
@@ -399,12 +405,150 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   dots.forEach((dot) => {
+    // навещиваем обраточик события на каждую точку через массив
     dot.addEventListener('click', (event) => {
-      const slideTo = event.target.getAttribute('data-slide-to');
-      counter = slideTo;
-      offset = +slideWidth.slice(0, slideWidth.length - 2) * (slideTo - 1);
+      const slideTo = event.target.getAttribute('data-slide-to'); // создаем счётчик по дата-аттрибуту выбранной точки
+      counter = slideTo; // обновляем счётик на странице
+      offset = deleteNoNumbers(slideWidth) * (slideTo - 1); // устанавливаем смещение по дата-аттрибуту выбранной точки
 
       activateSlider(); // обновляем активность слайдера
     });
   });
+
+  function deleteNoNumbers(str) {
+    // находит в строке Нечисла и удаляет их
+    return +str.replace(/\D/g, '');
+  }
+
+  // Calorie calc
+
+  let result = document.querySelector('.calculating__result span'), // задаем параметры
+    sex,
+    height,
+    weight,
+    age,
+    ratio;
+
+  if (localStorage.getItem('userGender')) {
+    sex = localStorage.getItem('userGender'); // проверяем наличие данных в локальной БД и задаем их
+  } else {
+    sex = 'female'; // если БД пустой - задаем по умоолчанию 'female' и записываем в БД
+    localStorage.setItem('userGender', 'female');
+  }
+
+  if (localStorage.getItem('activeRatio')) {
+    ratio = localStorage.getItem('activeRatio'); // проверяем наличие данных в локальной БД и задаем их
+  } else {
+    ratio = 1.375; // если БД пустой - задаем по умоолчанию 1.375 и записываем в БД
+    localStorage.setItem('activeRatio', 1.375);
+  }
+
+  function initLocalSetting(parentSelector, activeClass) {
+    const elements = document.querySelectorAll(`${parentSelector} div`); // активируем и деактивируем поля по данных из локальной БД
+    elements.forEach((elem) => {
+      elem.classList.remove(activeClass); // отключение всех полей
+
+      if (localStorage.getItem('userGender') == elem.getAttribute('id')) {
+        elem.classList.add(activeClass); // сравниваем данные из БД и данные из полей, если одинаковы то активируем
+      }
+      if (
+        localStorage.getItem('activeRatio') == elem.getAttribute('data-ratio')
+      ) {
+        elem.classList.add(activeClass); // сравниваем данные из БД и данные из полей, если одинаковы то активируем
+      }
+    });
+  }
+
+  initLocalSetting('#gender', 'calculating__choose-item_active'); // активируем поля с значениями по-умолчанию
+  initLocalSetting(
+    '.calculating__choose_big',
+    'calculating__choose-item_active'
+  );
+
+  function calcTotal() {
+    //счёт и вывод результатов калькулятора
+    if (!(height && weight && age && sex && ratio)) {
+      // проверка на заполненность всех полей
+      result.textContent = '____';
+      return;
+    }
+
+    if (sex === 'female') {
+      // если женщина
+      result.textContent = Math.round(
+        (447.6 + 9.2 * weight + 3.1 * height - 4.3 * age) * ratio
+      );
+    } else {
+      // если мужчина
+      result.textContent = Math.round(
+        (88.36 + 13.4 * weight + 4.8 * height - 5.7 * age) * ratio
+      );
+    }
+  }
+
+  calcTotal(); // ставим поумолчанию result "0"
+
+  function getStaticInfo(parentSelector, activeClass) {
+    // получение статичных данных с выбранных полей
+    const elements = document.querySelectorAll(`${parentSelector} div`); //получение дочерних элементов для делигирования
+
+    document.querySelector(parentSelector).addEventListener('click', (e) => {
+      if (e.target.classList.contains('calculating__choose-item')) {
+        //проверка на выбор выделенных полей, а не их разделений
+        if (e.target.getAttribute('data-ratio')) {
+          ratio = +e.target.getAttribute('data-ratio'); // получение данных по дата атрибуту
+          localStorage.setItem(
+            'activeRatio',
+            +e.target.getAttribute('data-ratio')
+          ); // сохраняем ratio в локальной БД
+        } else {
+          sex = e.target.getAttribute('id');
+          localStorage.setItem('userGender', e.target.getAttribute('id')); // сохраняем gender в локальной БД
+        }
+
+        elements.forEach((elem) => {
+          // отключение всех полей
+          elem.classList.remove(activeClass);
+        });
+
+        e.target.classList.add(activeClass); // активация выбранного поля
+        calcTotal(); // расчёт и вывод
+      }
+    });
+  }
+
+  getStaticInfo('#gender', 'calculating__choose-item_active'); // получение гендера и активация
+  getStaticInfo('.calculating__choose_big', 'calculating__choose-item_active'); // получение ratio и активация
+
+  function getDynamicInfo(selector) {
+    // получение динамических данных от пользователя с полей заполнения
+    const input = document.querySelector(selector);
+
+    input.addEventListener('input', () => {
+      if (input.value.match(/\D/g)) {
+        // проверка на ввод символов кроме чисел
+        input.style.border = '1px solid red'; // выделение полей красным при вводе нечисел
+      } else {
+        input.style.border = 'none';
+      }
+
+      switch (
+        input.getAttribute('id') //получение данных с заполняемых полей из input
+      ) {
+        case 'height':
+          height = +input.value;
+          break;
+        case 'weight':
+          weight = +input.value;
+          break;
+        case 'age':
+          age = +input.value;
+          break;
+      }
+      calcTotal(); // расчёт и вывод
+    });
+  }
+  getDynamicInfo('#height'); // вызов данных по id
+  getDynamicInfo('#weight');
+  getDynamicInfo('#age');
 });
