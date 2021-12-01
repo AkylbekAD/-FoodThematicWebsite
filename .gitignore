@@ -2,3 +2,4 @@
 /node_modules
 /.pnp
 .pnp.js-debug
+/webpack-demo/node_modules
