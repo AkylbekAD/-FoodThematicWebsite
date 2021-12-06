@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AkylbekAD/-FoodThematicWebsite.git"
+    "url": "git+https://github.com/AkylbekAD/FoodThematicWebsite.git"
   },
   "keywords": [
     "food-tabs"
@@ -16,9 +16,9 @@
   "author": "AkylbekAD",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AkylbekAD/-FoodThematicWebsite/issues"
+    "url": "https://github.com/AkylbekAD/FoodThematicWebsite/issues"
   },
-  "homepage": "https://github.com/AkylbekAD/-FoodThematicWebsite#readme",
+  "homepage": "https://github.com/AkylbekAD/FoodThematicWebsite#readme",
   "browserslist": [
     ">1%"
   ],
