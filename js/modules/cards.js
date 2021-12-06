@@ -1,3 +1,5 @@
+import { getResource } from '../services/services';
+
 function cards() {
   class MenuItem {
     //конструктор меню табов
@@ -41,18 +43,6 @@ function cards() {
     }
   }
 
-  const getResource = async (url) => {
-    //асинхронное получение данных с сервера по url
-    let result = await fetch(url); //ожидание резульатов запроса, defualt 30 секунд
-
-    if (!result.ok) {
-      // проверяет результат fetch на наличие ошибок при запросе данных, т.к. 404 для него не ошибка.
-      throw new Error(`Could not fetch ${url}, status: ${result.status}`); // если нет результата, создание ошибки и вывод
-    }
-
-    return await result.json(); // возвращение результата в виде promise в формате json
-  };
-
   getResource('http://localhost:3000/menu').then((data) => {
     //получение данных из БД
     data.forEach(({ img, alt, title, descr, price, parent }) => {
@@ -62,4 +52,4 @@ function cards() {
   });
 }
 
-module.exports = cards;
+export default cards;

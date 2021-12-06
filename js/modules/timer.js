@@ -1,6 +1,4 @@
-function timer() {
-  const deadline = '2021-12-28T22:35:00'; //конец таймера акции
-
+function timer(id, deadline) {
   function getTimeReamaining(endtime) {
     // реализация таймера по дням,часам,минутам,секундам до конца акции
     const t = Date.parse(endtime) - Date.parse(new Date()), // разница между концом акции и настоящим временем
@@ -58,7 +56,7 @@ function timer() {
     }
   }
 
-  setClock('.timer', deadline);
+  setClock(id, deadline);
 }
 
-module.exports = timer;
+export default timer;

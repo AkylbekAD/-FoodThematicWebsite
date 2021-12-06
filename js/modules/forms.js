@@ -1,5 +1,8 @@
-function forms() {
-  const forms = document.querySelectorAll('form'); //форма в модальном окне которая заполняется пользователем
+import { closeModal, openModal } from './modal';
+import { postData } from '../services/services';
+
+function forms(formSelector, modalTimerId) {
+  const forms = document.querySelectorAll(formSelector); //форма в модальном окне которая заполняется пользователем
 
   const message = {
     //содержание сообщения о статусе отправки данных пользователя через модальное окно
@@ -12,18 +15,6 @@ function forms() {
     // для срабатывания каждой формы на странице при отправке
     bindPostData(item);
   });
-
-  const postData = async (url, data) => {
-    //асинхронная отправка данных на сервер в БД
-    let result = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: data,
-    });
-    return await result.json();
-  };
 
   function bindPostData(form) {
     // обработчик отправки данных пользователя
@@ -62,7 +53,7 @@ function forms() {
       const prevModalDialog = document.querySelector('.modal__dialog');
 
       prevModalDialog.classList.add('hide'); // скрытие прочих модальных окон
-      openModal();
+      openModal('[data-modalWindow]', modalTimerId);
 
       const thanksModal = document.createElement('div'); // создания модального окна с благодарностью либо об ошибке
       thanksModal.classList.add('modal__dialog');
@@ -73,16 +64,15 @@ function forms() {
         </div>
       `;
 
-      document.querySelector('.modal').append(thanksModal);
+      document.querySelector('[data-modalWindow]').append(thanksModal);
       setTimeout(() => {
-        // автоматическое скрытие модального окна через время
-        thanksModal.remove();
+        thanksModal.remove(); // автоматическое скрытие модального окна через время
         prevModalDialog.classList.add('show');
         prevModalDialog.classList.remove('hide');
-        closeModal();
+        closeModal('[data-modalWindow]');
       }, 4000);
     }
   }
 }
 
-module.exports = forms;
+export default forms;

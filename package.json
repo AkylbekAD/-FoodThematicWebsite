@@ -19,7 +19,20 @@
     "url": "https://github.com/AkylbekAD/-FoodThematicWebsite/issues"
   },
   "homepage": "https://github.com/AkylbekAD/-FoodThematicWebsite#readme",
+  "browserslist": [
+    ">1%"
+  ],
   "devDependencies": {
-    "json-server": "^0.17.0"
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "babel-loader": "^8.2.3",
+    "core-js": "^3.19.3",
+    "json-server": "^0.17.0",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1"
   }
 }

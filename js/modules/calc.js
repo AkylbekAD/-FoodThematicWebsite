@@ -82,7 +82,7 @@ function calc() {
           // отключение всех полей
           elem.classList.remove(activeClass);
         });
-        console.log(sex, ratio);
+
         e.target.classList.add(activeClass); // активация выбранного поля
         calcTotal(); // расчёт и вывод
       });
@@ -128,4 +128,4 @@ function calc() {
   getDynamicInfo('#age');
 }
 
-module.exports = calc;
+export default calc;

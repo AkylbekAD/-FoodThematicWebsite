@@ -1,11 +1,21 @@
-function slider() {
-  const sliders = document.querySelectorAll('.offer__slide'),
-    counterTotal = document.querySelector('#total'),
-    counterCurrent = document.querySelector('#current'),
-    sliderPrev = document.querySelector('.offer__slider-prev'),
-    sliderNext = document.querySelector('.offer__slider-next'),
-    slidesWrapper = document.querySelector('.offer__slider-wrapper'), // ячейка обзора слайдов
-    slidesField = document.querySelector('.offer__slider-inner'), // поле объединённых слайдов
+function slider({
+  container,
+  slide,
+  nextArrow,
+  prevArrow,
+  totalCounter,
+  currentCounter,
+  wrapper,
+  field,
+}) {
+  const sliders = document.querySelectorAll(container),
+    sliderOffer = document.querySelector(slide), // находим общую обёртку слайдера
+    counterTotal = document.querySelector(totalCounter),
+    counterCurrent = document.querySelector(currentCounter),
+    sliderPrev = document.querySelector(prevArrow),
+    sliderNext = document.querySelector(nextArrow),
+    slidesWrapper = document.querySelector(wrapper), // ячейка обзора слайдов
+    slidesField = document.querySelector(field), // поле объединённых слайдов
     slideWidth = window.getComputedStyle(slidesWrapper).width; // ширина для подгонки всех слайдов под ячейку
 
   let offset = 0; // отступ во время transition, текущее положение slidesField
@@ -65,8 +75,7 @@ function slider() {
 
   //Slider navigator
 
-  const sliderOffer = document.querySelector('.offer__slider'), // находим общую обёртку слайдера
-    dots = []; // создаем массив для точек навигации
+  let dots = []; // создаем массив для точек навигации
 
   sliderOffer.style.position = 'relative'; // устанавливаем "местную" ось координат
 
@@ -127,4 +136,4 @@ function slider() {
   }
 }
 
-module.exports = slider;
+export default slider;
